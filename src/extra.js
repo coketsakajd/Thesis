@@ -1,15 +1,17 @@
 import React, { useRef, useState, useEffect } from "react";
 import * as tmImage from "@teachablemachine/image";
 import Webcam from "react-webcam";
-import * as tf from "@tensorflow/tfjs";
+
+
 function App() {
   const webcamRef = useRef(null);
-  const labelContainerRef = useRef(null);
+  const labelContainerRef = useRef([]);
 
   const [model, setModel] = useState(null);
   const [maxPredictions, setMaxPredictions] = useState(0);
+  const [predictions, setPredictions] = useState([]);
 
-  const URL = '{{URL}}'; // Update this with your model URL
+  const URL = 'https://teachablemachine.withgoogle.com/models/rZz85HzWk/'; // Update this with your model URL
 
   useEffect(() => {
     const init = async () => {
@@ -32,25 +34,18 @@ function App() {
   }, []);
 
   const loop = async () => {
-    if (!model) return;
+    if (!model || !webcamRef.current) return;
 
     const webcam = webcamRef.current.video;
-    if (!webcam) return;
-
-    webcam.update(); // update the webcam frame
     const prediction = await model.predict(webcam);
-    for (let i = 0; i < maxPredictions; i++) {
-      const classPrediction =
-        prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-      labelContainerRef.current.childNodes[i].innerHTML = classPrediction;
-    }
+    setPredictions(prediction);
 
     requestAnimationFrame(loop);
   };
 
   useEffect(() => {
     loop();
-  }, [model, maxPredictions]);
+  }, [model]);
 
   return (
     <div className="App">
@@ -71,9 +66,11 @@ function App() {
           }}
         />
       </div>
-      <div id="label-container" ref={labelContainerRef}>
-        {Array.from({ length: maxPredictions }).map((_, index) => (
-          <div key={index}></div>
+      <div id="label-container">
+        {predictions.map((prediction, index) => (
+          <div key={index} ref={ref => labelContainerRef.current[index] = ref}>
+            {prediction.className}: {prediction.probability.toFixed(2)}
+          </div>
         ))}
       </div>
     </div>
