@@ -21,6 +21,7 @@ const CombinedComponent = () => {
   const [imageMaxPredictions, setImageMaxPredictions] = useState(0);
 
   const webcamRef = useRef(null);
+  const lastSpokenClass = useRef(null);
 
   useEffect(() => {
     // Initialize Pose Model
@@ -57,24 +58,59 @@ const CombinedComponent = () => {
 
   useEffect(() => {
     const loop = async () => {
-      if (!poseModel || !webcamRef.current) return;
+      if (!poseModel || !imageModel || !webcamRef.current) return;
 
       const webcam = webcamRef.current.video;
       
       // For Pose Model
       const { pose, posenetOutput } = await poseModel.estimatePose(webcam);
       const posePrediction = await poseModel.predict(posenetOutput);
-      setPosePredictions(posePrediction);
 
       // For Image Model
       const imagePrediction = await imageModel.predict(webcam);
+
+      setPosePredictions(posePrediction);
       setImagePredictions(imagePrediction);
+
+      // Speak if class detected
+      speakIfDetected(posePrediction, imagePrediction);
 
       requestAnimationFrame(loop);
     };
 
     loop();
   }, [poseModel, imageModel]);
+
+  const speakIfDetected = (posePredictions, imagePredictions) => {
+    const threshold = 0.8; // Adjust as needed
+    const detectedClasses = [];
+
+    // Add detected classes from Pose Model
+    posePredictions.forEach(prediction => {
+      if (prediction.probability > threshold && prediction.className !== lastSpokenClass.current) {
+        detectedClasses.push(prediction.className);
+      }
+    });
+
+    // Add detected classes from Image Model
+    imagePredictions.forEach(prediction => {
+      if (prediction.probability > threshold && prediction.className !== lastSpokenClass.current) {
+        detectedClasses.push(prediction.className);
+      }
+    });
+
+    // Speak detected classes
+    if (detectedClasses.length > 0) {
+      const text = `Classes detected: ${detectedClasses.join(', ')}`;
+      speak(text);
+      lastSpokenClass.current = detectedClasses[detectedClasses.length - 1];
+    }
+  };
+
+  const speak = (text) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(utterance);
+  };
 
   const drawPose = (pose) => {
     const ctx = poseCanvasRef.current.getContext('2d');

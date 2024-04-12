@@ -6,7 +6,7 @@ import * as tmImage from '@teachablemachine/image';
 const CombinedComponent = () => {
   // Teachable Machine Pose Model
   const poseModelURL = 'https://teachablemachine.withgoogle.com/models/-vTgwJKjf/';
-  // Teachable Machine Image Model
+  // Teachable Machine Face Image Model
   const imageModelURL = 'https://teachablemachine.withgoogle.com/models/rZz85HzWk/';
 
   // Pose Model States
@@ -21,7 +21,7 @@ const CombinedComponent = () => {
   const [imageMaxPredictions, setImageMaxPredictions] = useState(0);
 
   const webcamRef = useRef(null);
-  const lastSpokenClass = useRef(null);
+  const lastSpokenOutput = useRef(null);
 
   useEffect(() => {
     // Initialize Pose Model
@@ -73,7 +73,7 @@ const CombinedComponent = () => {
       setImagePredictions(imagePrediction);
 
       // Speak if class detected
-      speakIfDetected(posePrediction, imagePrediction);
+      speakIfDetected(imagePrediction, posePrediction);
 
       requestAnimationFrame(loop);
     };
@@ -81,29 +81,39 @@ const CombinedComponent = () => {
     loop();
   }, [poseModel, imageModel]);
 
-  const speakIfDetected = (posePredictions, imagePredictions) => {
-    const threshold = 0.8; // Adjust as needed
-    const detectedClasses = [];
+  const speakIfDetected = (imagePredictions, posePredictions) => {
+    const threshold = 0.9; // Adjust as needed
+    let imageClass = null;
+    let poseAction = null;
 
-    // Add detected classes from Pose Model
-    posePredictions.forEach(prediction => {
-      if (prediction.probability > threshold && prediction.className !== lastSpokenClass.current) {
-        detectedClasses.push(prediction.className);
-      }
-    });
-
-    // Add detected classes from Image Model
+    // Check for image classification
     imagePredictions.forEach(prediction => {
-      if (prediction.probability > threshold && prediction.className !== lastSpokenClass.current) {
-        detectedClasses.push(prediction.className);
+      if (prediction.probability > threshold) {
+        imageClass = prediction.className;
       }
     });
 
-    // Speak detected classes
-    if (detectedClasses.length > 0) {
-      const text = `Classes detected: ${detectedClasses.join(', ')}`;
-      speak(text);
-      lastSpokenClass.current = detectedClasses[detectedClasses.length - 1];
+    // Check for pose estimation
+    posePredictions.forEach(prediction => {
+      if (prediction.probability > threshold) {
+        poseAction = prediction.className;
+      }
+    });
+
+    // Update spoken output
+    let spokenOutput = lastSpokenOutput.current;
+    if (imageClass && poseAction) {
+      spokenOutput = `${imageClass} is ${poseAction}`;
+    } else if (imageClass) {
+      spokenOutput = `${imageClass} is ${spokenOutput ? spokenOutput.split(' ')[2] : ''}`;
+    } else if (poseAction) {
+      spokenOutput = `${spokenOutput ? spokenOutput.split(' ')[0] : ''} is ${poseAction}`;
+    }
+
+    // Speak if output changed
+    if (spokenOutput && spokenOutput !== lastSpokenOutput.current) {
+      speak(spokenOutput);
+      lastSpokenOutput.current = spokenOutput;
     }
   };
 
