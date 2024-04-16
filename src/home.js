@@ -143,7 +143,6 @@ const CombinedComponent = () => {
   
   return (
     <div>
-    
       <div className="flex flex-col items-center justify-center h-screen">
         <div className="mb-4">
           <Webcam
@@ -152,11 +151,11 @@ const CombinedComponent = () => {
             className="w-full h-auto"
           />
         </div>
-    
+        <div><canvas ref={poseCanvasRef} width={100} height={100}></canvas></div>
         <div className="grid grid-cols-2 gap-4"> {/* Use a grid with two columns */}
           <div className="relative">
             <div className="mb-2">Human Action Recognition</div>
-            <div><canvas ref={poseCanvasRef} width={100} height={100}></canvas></div>
+            
             <div id='pose-predictions' className="mt-1">
               {posePredictions.map((prediction, index) => (
                 <div key={index} className="flex items-center mb-2"> {/* Align items center */}
@@ -180,7 +179,7 @@ const CombinedComponent = () => {
           </div>
         </div>
       </div>
-     
+      
     </div>
   );
 };
