@@ -205,12 +205,11 @@ const CombinedComponent = () => {
   );
   
   return (
+    
     <div>
       <div><canvas ref={poseCanvasRef} width={100} height={100}></canvas></div>
       <div className="flex flex-col items-center justify-center h-screen">
-        {/* Placeholder for ESP32-CAM image */}
         <div id="main-wrapper">
-          {/* ESP32-CAM image */}
         </div>
         
         <div className="grid grid-cols-2 gap-4"> {/* Use a grid with two columns */}
