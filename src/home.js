@@ -1,10 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
-import Webcam from 'react-webcam';
 import * as tmPose from '@teachablemachine/pose';
 import * as tmImage from '@teachablemachine/image';
-import Navbar from './navbar'; 
-import About  from './about'; 
-import Contacts  from './contacts'; 
+
 
 const CombinedComponent = () => {
   // Teachable Machine Pose Model
@@ -23,7 +20,6 @@ const CombinedComponent = () => {
   const [imagePredictions, setImagePredictions] = useState([]);
   const [imageMaxPredictions, setImageMaxPredictions] = useState(0);
 
-  const webcamRef = useRef(null);
   const lastSpokenOutput = useRef(null);
 
   useEffect(() => {
@@ -60,32 +56,86 @@ const CombinedComponent = () => {
   }, []);
 
   useEffect(() => {
-    const loop = async () => {
-      if (!poseModel || !imageModel || !webcamRef.current) return;
-
-      const webcam = webcamRef.current.video;
-      
-      // For Pose Model
-      const { pose, posenetOutput } = await poseModel.estimatePose(webcam);
-      const posePrediction = await poseModel.predict(posenetOutput);
-
-      // For Image Model
-      const imagePrediction = await imageModel.predict(webcam);
-
-      setPosePredictions(posePrediction);
-      setImagePredictions(imagePrediction);
-
-      // Speak if class detected
-      speakIfDetected(imagePrediction, posePrediction);
-
-      requestAnimationFrame(loop);
+    const ws = new WebSocket('ws://192.168.1.8:8999');
+  
+    ws.addEventListener('open', (event) => {
+      ws.send(JSON.stringify({
+        'client': '8999',
+        'operation': 'connecting',
+        'data': {}
+      }));
+    });
+  
+    ws.onmessage = async message => {
+      let md = JSON.parse(message.data);
+  
+      for (const device in md.devices) {
+        if (!document.querySelector('#' + device)) {
+          document.querySelector('#main-wrapper')
+            .appendChild(createElement('div', { id: device, class: md.devices[device].class + ' item' }))
+            .appendChild(createElement('h2', { id: device + '-header', class: 'sensors-header' }, md.devices[device].display));
+          document.querySelector('#' + device)
+            .appendChild(createElement('div', { id: 'wrap-' + device + '-image', class: 'image-wrapper' }))
+            .appendChild(createElement('img', { id: 'img-' + device }));
+          document.querySelector('#' + device)
+            .appendChild(createElement('div', { id: 'wrap-' + device + '-commands' }));
+        }
+  
+        if (md.devices[device].image) {
+          document.querySelector('#img-' + device).src = "data:image/jpeg;base64," + md.devices[device].image;
+  
+          // For Pose Model
+          if (poseModel && poseCanvasRef.current) {
+            const image = document.querySelector('#img-' + device);
+            const { pose, posenetOutput } = await poseModel.estimatePose(image);
+            const posePrediction = await poseModel.predict(posenetOutput);
+            setPosePredictions(posePrediction);
+            drawPose(pose);
+          }
+  
+          // For Image Model
+          if (imageModel) {
+            const image = document.querySelector('#img-' + device);
+            const imagePrediction = await imageModel.predict(image);
+            setImagePredictions(imagePrediction);
+  
+            // Speak if class detected
+            speakIfDetected(imagePrediction, posePredictions);
+          }
+        }
+  
+        if (md.devices[device].peripherals) {
+          for (const [id, state] of Object.entries(md.devices[device].peripherals)) {
+            if (!document.querySelector('#' + device + '-' + id)) {
+              document.querySelector('#wrap-' + device + '-commands')
+                .appendChild(createElement('div', {
+                  id: device + '-' + id,
+                  class: 'command-button'
+                })).appendChild(createElement('div', {
+                  id: device + '-' + id + '-state',
+                  class: 'on-off-icon',
+                  'data-state': state
+                }));
+            } else {
+              // Has any state changed?
+              let element = document.querySelector('#' + device + '-' + id + '-state');
+  
+              if (element && state != element.dataset.state) {
+                element.dataset.state = state;
+              }
+            }
+          }
+        }
+      }
     };
-
-    loop();
-  }, [poseModel, imageModel]);
-
+  
+    return () => {
+      ws.close();
+    };
+  }, [poseModel, imageModel]); // Include poseModel and imageModel in dependency array to trigger effect on changes
+  
   const speakIfDetected = (imagePredictions, posePredictions) => {
-    const threshold = 0.9; // Adjust as needed
+    const threshold = 0.94; // Adjust as needed
     let imageClass = null;
     let poseAction = null;
 
@@ -108,9 +158,9 @@ const CombinedComponent = () => {
     if (imageClass && poseAction) {
       spokenOutput = `${imageClass} is ${poseAction}`;
     } else if (imageClass) {
-      spokenOutput = `${imageClass} is ${spokenOutput ? spokenOutput.split(' ')[2] : ''}`;
+      spokenOutput = `${imageClass} is ${spokenOutput ? spokenOutput.split(' ')[2] || '' : ''}`;
     } else if (poseAction) {
-      spokenOutput = `${spokenOutput ? spokenOutput.split(' ')[0] : ''} is ${poseAction}`;
+      spokenOutput = `${spokenOutput ? spokenOutput.split(' ')[0] || '' : ''} is ${poseAction}`;
     }
 
     // Speak if output changed
@@ -125,6 +175,9 @@ const CombinedComponent = () => {
     window.speechSynthesis.speak(utterance);
   };
 
+  
+
+
   const drawPose = (pose) => {
     const ctx = poseCanvasRef.current.getContext('2d');
     ctx.clearRect(0, 0, 200, 200);
@@ -135,6 +188,16 @@ const CombinedComponent = () => {
     }
   };
 
+  const createElement = (e, a, i) => {
+    if(typeof(e) === "undefined"){ return false; } 
+    if(typeof(i) === "undefined"){ i = ""; }
+    let el = document.createElement(e);
+    if(typeof(a) === 'object') { for(let k in a) { el.setAttribute(k,a[k]); }}
+    if(!Array.isArray(i)) { i = [i]; }
+    for(let k = 0; k < i.length; k++) { if(i[k].tagName) { el.appendChild(i[k]); } else { el.appendChild(document.createTextNode(i[k])); }}
+    return el;
+  };
+
   const ProgressBar = ({ progress }) => (
     <div className="bg-gray-200 h-2 rounded-lg overflow-hidden w-full">
       <div className="bg-blue-500 h-full" style={{ width: `${progress * 100}%` }}></div>
@@ -143,15 +206,13 @@ const CombinedComponent = () => {
   
   return (
     <div>
+      <div><canvas ref={poseCanvasRef} width={100} height={100}></canvas></div>
       <div className="flex flex-col items-center justify-center h-screen">
-        <div className="mb-4">
-          <Webcam
-            ref={webcamRef}
-            muted={true}
-            className="w-full h-auto"
-          />
+        {/* Placeholder for ESP32-CAM image */}
+        <div id="main-wrapper">
+          {/* ESP32-CAM image */}
         </div>
-        <div><canvas ref={poseCanvasRef} width={100} height={100}></canvas></div>
+        
         <div className="grid grid-cols-2 gap-4"> {/* Use a grid with two columns */}
           <div className="relative">
             <div className="mb-2">Human Action Recognition</div>
@@ -179,7 +240,6 @@ const CombinedComponent = () => {
           </div>
         </div>
       </div>
-      
     </div>
   );
 };
