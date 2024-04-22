@@ -1,7 +1,9 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as tmPose from '@teachablemachine/pose';
 import * as tmImage from '@teachablemachine/image';
-
+import Navbar from './navbar'; 
+import About from './about'; 
+import Contacts from './contacts'; 
 
 const CombinedComponent = () => {
   // Teachable Machine Pose Model
@@ -19,6 +21,9 @@ const CombinedComponent = () => {
   const [imageModel, setImageModel] = useState(null);
   const [imagePredictions, setImagePredictions] = useState([]);
   const [imageMaxPredictions, setImageMaxPredictions] = useState(0);
+
+  // Flashlight State
+  const [flashlightOn, setFlashlightOn] = useState(false);
 
   const lastSpokenOutput = useRef(null);
 
@@ -110,7 +115,8 @@ const CombinedComponent = () => {
               document.querySelector('#wrap-' + device + '-commands')
                 .appendChild(createElement('div', {
                   id: device + '-' + id,
-                  class: 'command-button'
+                  class: 'command-button',
+                  onClick: () => toggleFlash()
                 })).appendChild(createElement('div', {
                   id: device + '-' + id + '-state',
                   class: 'on-off-icon',
@@ -135,48 +141,52 @@ const CombinedComponent = () => {
   }, [poseModel, imageModel]); // Include poseModel and imageModel in dependency array to trigger effect on changes
   
   const speakIfDetected = (imagePredictions, posePredictions) => {
-    const threshold = 0.94; // Adjust as needed
+    const threshold = 0.9; // Adjust as needed
     let imageClass = null;
     let poseAction = null;
-
+  
     // Check for image classification
     imagePredictions.forEach(prediction => {
       if (prediction.probability > threshold) {
         imageClass = prediction.className;
       }
     });
-
+  
     // Check for pose estimation
     posePredictions.forEach(prediction => {
       if (prediction.probability > threshold) {
         poseAction = prediction.className;
       }
     });
-
+  
     // Update spoken output
     let spokenOutput = lastSpokenOutput.current;
     if (imageClass && poseAction) {
       spokenOutput = `${imageClass} is ${poseAction}`;
     } else if (imageClass) {
-      spokenOutput = `${imageClass} is ${spokenOutput ? spokenOutput.split(' ')[2] || '' : ''}`;
+      spokenOutput = `${imageClass} is ${spokenOutput ? spokenOutput.split(' ')[2] : ''}`;
     } else if (poseAction) {
-      spokenOutput = `${spokenOutput ? spokenOutput.split(' ')[0] || '' : ''} is ${poseAction}`;
+      spokenOutput = `${spokenOutput ? spokenOutput.split(' ')[0] : ''} is ${poseAction}`;
     }
-
+  
     // Speak if output changed
     if (spokenOutput && spokenOutput !== lastSpokenOutput.current) {
       speak(spokenOutput);
       lastSpokenOutput.current = spokenOutput;
     }
   };
-
+  
   const speak = (text) => {
     const utterance = new SpeechSynthesisUtterance(text);
     window.speechSynthesis.speak(utterance);
   };
-
   
-
+  const toggleFlash = () => {
+    // Send a message to control the flash
+    // Example: send a WebSocket message to ESP32-CAM to turn on/off the flash
+    // You need to implement this functionality based on your ESP32-CAM code
+    setFlashlightOn(prevState => !prevState); // Toggle flashlight state in the app
+  };
 
   const drawPose = (pose) => {
     const ctx = poseCanvasRef.current.getContext('2d');
@@ -205,11 +215,12 @@ const CombinedComponent = () => {
   );
   
   return (
-    
     <div>
-      <div><canvas ref={poseCanvasRef} width={100} height={100}></canvas></div>
+      <div><canvas ref={poseCanvasRef} width={50} height={50}></canvas></div>
       <div className="flex flex-col items-center justify-center h-screen">
+        {/* Placeholder for ESP32-CAM image */}
         <div id="main-wrapper">
+          {/* ESP32-CAM image */}
         </div>
         
         <div className="grid grid-cols-2 gap-4"> {/* Use a grid with two columns */}
@@ -238,6 +249,7 @@ const CombinedComponent = () => {
             </div>
           </div>
         </div>
+        <button onClick={toggleFlash} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">Toggle Flash</button>
       </div>
     </div>
   );
