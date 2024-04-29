@@ -4,7 +4,7 @@ import * as tmImage from '@teachablemachine/image';
 
 const CombinedComponent = () => {
   // Teachable Machine Pose Model
-  const poseModelURL = 'https://teachablemachine.withgoogle.com/models/hBIEgdPtx/';
+  const poseModelURL = 'https://teachablemachine.withgoogle.com/models/sn-asfxVA/';
   // Teachable Machine Face Image Model
   const imageModelURL = 'https://teachablemachine.withgoogle.com/models/XyFBtFDax/';
 
@@ -20,6 +20,8 @@ const CombinedComponent = () => {
   const [imageMaxPredictions, setImageMaxPredictions] = useState(0);
 
   const [spokenOutput, setSpokenOutput] = useState("");
+
+  const videoRef = useRef(null);
 
   useEffect(() => {
     // Initialize Pose Model
@@ -55,7 +57,7 @@ const CombinedComponent = () => {
   }, []);
 
   useEffect(() => {
-    const ws = new WebSocket('ws://172.20.10.10:8999');
+    const ws = new WebSocket('ws://192.168.1.32:8999');
 
     ws.addEventListener('open', (event) => {
       ws.send(JSON.stringify({
@@ -204,10 +206,15 @@ const CombinedComponent = () => {
 
   return (
     <div>
-      <div><canvas ref={poseCanvasRef} width={100} height={100}></canvas></div>
-      <div className="flex flex-col items-center justify-center h-screen">
-        <div id="main-wrapper"></div>
-        <div className="grid grid-cols-2 gap-4">
+     
+      <div className="flex flex-col items-center justify-center l-screen">
+      <div><canvas ref={poseCanvasRef} width={50} height={50}></canvas></div>
+      <div id="video-container" style={{ maxWidth: '500px', maxHeight: '400px', marginBottom: '50px' }}>
+    <div id="main-wrapper">
+      <video ref={videoRef} autoPlay playsInline muted className="max-w-full" style={{ maxWidth: '100%', maxHeight: '100%' }}></video>
+    </div>
+        
+        <div className="grid grid-cols-2 gap-4 mt-5">
           <div className="relative">
             <div className="mb-2">Human Action Recognition</div>
             <div id='pose-predictions' className="mt-1">
@@ -232,6 +239,7 @@ const CombinedComponent = () => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };
