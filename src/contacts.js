@@ -1,4 +1,8 @@
 import React from "react";
+import RahcImage from "./Dev/Rahc.jpg";
+import PaoImage from "./Dev/Pao.jpg";
+import AidanImage from "./Dev/Aidan.png";
+import CharlesImage from "./Dev/Charles.png";
 
 function Contact() {
   return (
@@ -18,9 +22,8 @@ function Contact() {
         <div className="flex justify-end px-4 pt-4">
         </div>
         <div className="flex flex-col items-center pb-10">
-          <img
-            className="w-24 h-24 mb-3 rounded-full shadow-lg"
-            src="/docs/images/people/profile-picture-3.jpg"/>
+        <img
+          className="w-24 h-24 object-cover rounded-full shadow-lg" src={AidanImage} alt="Aidan's Image" />
           <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white">
             Aidan Delon Del Pilar
           </h5>
@@ -28,7 +31,7 @@ function Contact() {
             Developer
           </span>
           <div className="flex mt-4 md:mt-6">
-            <a className="py-2 px-4 ms-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+            <a  href="https://www.facebook.com/aidalandan" className="py-2 px-4 ms-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
               Contact
             </a>
           </div>
@@ -38,9 +41,8 @@ function Contact() {
         <div className="flex justify-end px-4 pt-4">
         </div>
         <div className="flex flex-col items-center pb-10">
-          <img
-            className="w-24 h-24 mb-3 rounded-full shadow-lg"
-            src="/docs/images/people/profile-picture-3.jpg"/>
+        <img
+          className="w-24 h-24 object-cover rounded-full shadow-lg" src={PaoImage} alt="Pao's Image" />
           <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white">
             John Paolo D. Espiritu
           </h5>
@@ -48,7 +50,7 @@ function Contact() {
             Developer
           </span>
           <div className="flex mt-4 md:mt-6">
-            <a className="py-2 px-4 ms-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+            <a href="https://www.facebook.com/Paolonokaizoku/"  className="py-2 px-4 ms-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
               Contact
             </a>
           </div>
@@ -59,8 +61,7 @@ function Contact() {
         </div>
         <div className="flex flex-col items-center pb-10">
           <img
-            className="w-24 h-24 mb-3 rounded-full shadow-lg"
-            src="/docs/images/people/profile-picture-3.jpg"/>
+           className="w-24 h-24 object-cover rounded-full shadow-lg" src={RahcImage} alt="Rahc Image" />
           <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white">
             Rahc Eiram Bulatao
           </h5>
@@ -68,7 +69,7 @@ function Contact() {
           Developer
           </span>
           <div className="flex mt-4 md:mt-6">
-            <a className="py-2 px-4 ms-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+            <a href="https://www.facebook.com/RahcxHAHAHAH" className="py-2 px-4 ms-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
               Contact
             </a>
           </div>
@@ -79,8 +80,7 @@ function Contact() {
         </div>
         <div className="flex flex-col items-center pb-10">
           <img
-            className="w-24 h-24 mb-3 rounded-full shadow-lg"
-            src="/docs/images/people/profile-picture-3.jpg"/>
+            className="w-24 h-24 object-cover rounded-full shadow-lg" src={CharlesImage} alt="Charles Image" />
           <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white">
             Charles Joshua Rodillas
           </h5>
@@ -88,7 +88,7 @@ function Contact() {
           Developer
           </span>
           <div className="flex mt-4 md:mt-6">
-            <a className="py-2 px-4 ms-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+            <a href="https://www.facebook.com/Cjrodillas28" className="py-2 px-4 ms-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
               Contact
             </a>
           </div>

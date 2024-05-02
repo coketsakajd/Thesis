@@ -6,7 +6,7 @@ const CombinedComponent = () => {
   // Teachable Machine Pose Model
   const poseModelURL = 'https://teachablemachine.withgoogle.com/models/sn-asfxVA/';
   // Teachable Machine Face Image Model
-  const imageModelURL = 'https://teachablemachine.withgoogle.com/models/XyFBtFDax/';
+  const imageModelURL = 'https://teachablemachine.withgoogle.com/models/XVMKJ40r9/';
 
   // Pose Model States
   const [poseModel, setPoseModel] = useState(null);
@@ -57,7 +57,7 @@ const CombinedComponent = () => {
   }, []);
 
   useEffect(() => {
-    const ws = new WebSocket('ws://192.168.1.32:8999');
+    const ws = new WebSocket('ws://192.168.101.139:8999');
 
     ws.addEventListener('open', (event) => {
       ws.send(JSON.stringify({
